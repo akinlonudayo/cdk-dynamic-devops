@@ -1,0 +1,257 @@
+{
+ "Resources": {
+  "myKMSKeyABD67C32": {
+   "Type": "AWS::KMS::Key",
+   "Properties": {
+    "KeyPolicy": {
+     "Statement": [
+      {
+       "Action": "kms:*",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "arn:aws:iam::409263326615:root"
+       },
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/myKMSKey/Resource"
+   }
+  },
+  "Bucket83908E77": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "KMSMasterKeyID": {
+         "Fn::GetAtt": [
+          "myKMSKeyABD67C32",
+          "Arn"
+         ]
+        },
+        "SSEAlgorithm": "aws:kms"
+       }
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/Bucket/Resource"
+   }
+  },
+  "BucketPolicyE9A3008A": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "Bucket83908E77"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "Bucket83908E77",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "Bucket83908E77",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/Bucket/Policy/Resource"
+   }
+  },
+  "InstanceInstanceSecurityGroupF0E2D5BE": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "DevopsCdkDynamicStack/Instance/InstanceSecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "DevopsCdkDynamicStack/Instance"
+     }
+    ],
+    "VpcId": "vpc-053b9ebca1c4699e6"
+   },
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/Instance/InstanceSecurityGroup/Resource"
+   }
+  },
+  "InstanceInstanceRoleE9785DE5": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "DevopsCdkDynamicStack/Instance"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/Instance/InstanceRole/Resource"
+   }
+  },
+  "InstanceInstanceProfileAB5AEF02": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "InstanceInstanceRoleE9785DE5"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/Instance/InstanceProfile"
+   }
+  },
+  "InstanceC1063A87": {
+   "Type": "AWS::EC2::Instance",
+   "Properties": {
+    "AvailabilityZone": "ca-central-1b",
+    "IamInstanceProfile": {
+     "Ref": "InstanceInstanceProfileAB5AEF02"
+    },
+    "ImageId": {
+     "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
+    },
+    "InstanceType": "t3.micro",
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "InstanceInstanceSecurityGroupF0E2D5BE",
+       "GroupId"
+      ]
+     }
+    ],
+    "SubnetId": "subnet-0c74e4a72c1c8a995",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "DevopsCdkDynamicStack/Instance"
+     }
+    ],
+    "UserData": {
+     "Fn::Base64": "#!/bin/bash"
+    }
+   },
+   "DependsOn": [
+    "InstanceInstanceRoleE9785DE5"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/Instance/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2WRTU/DMAyGfws5TlkYRXDYreOApoGYVm7VhFLXg6xpUuWjUxXlv6O269jEIXLyxn79OElY8vDEFnf8ZOdQVnMpChYyx6Gi/GS/QlVbFjbY5WRG9vTloDbYRWofWVh5qNDlgRRSQ7X1hRSQAqC1ZElmhBJUYLrGCa3Ikmzesxtpg90l7aANYJa9kaUzHilp0VihFZaTYLDWLZdbLQX0ZSVaZ3RH4kA0gtAxjDk91XAcelynjfeRIiQsrJV1XAHmgbQNnHnEWfzsGjxLNYcfoXBd8+9JahvIfKHQWbIMxE7b4Zli3NMMwRvhulejfXPjz6XUp1TKD+8K7dVlyElfN+3z390F/8awFyb4SAWvWdhp2c/BrfU1lquux2qMUCAaLlMA7ZWbCIacviCF8/fMSBzb9Oq1+9bog5AYI92h1d4A5oPH/zWUb7nhNTo0kSpdIjva+zZJWLJgi7ujFWJuvHKiRrYb4y+G05wrfwIAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "DevopsCdkDynamicStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Parameters": {
+  "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
+  },
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

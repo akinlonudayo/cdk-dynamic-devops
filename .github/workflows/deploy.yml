@@ -1,6 +1,9 @@
 name: Deploy CDK to AWS
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       action:
@@ -12,7 +15,7 @@ on:
           - deploy
           - destroy
       deploy_env:
-        description: 'Environment to Deploy(e.g: dev, test, prod)'
+        description: 'Environment to Deploy (e.g: dev, test, prod)'
         required: true
         default: 'dev'
         type: choice
@@ -20,6 +23,7 @@ on:
           - dev
           - test
           - prod
+
 
 permissions:
   id-token: write       # required for OIDC
@@ -29,8 +33,11 @@ jobs:
   cdk-deploy:
     runs-on: ubuntu-latest
     defaults:
-      run:
-        working-directory: devops-cdk-dynamic
+      run:      
+        working-directory: genai
+    env:
+      ACTION: ${{ github.event.inputs.action || 'deploy' }}
+      DEPLOY_ENV: ${{ github.event.inputs.deploy_env || 'dev' }}
 
     steps:
       - name: Checkout repo
@@ -43,21 +50,17 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Install project dependencies
-        run: npm ci    # ✅ local install, uses package-lock.json
+      - name: Install CDK Dependencies
+        run: |
+          npm ci
+          npm install -g aws-cdk
 
-      - name: Install AWS CDK CLI globally
-        run: npm install -g aws-cdk    # ✅ separate global install
-
-
-      
       - name: CDK Bootstrapping (if needed)
         run: cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ secrets.AWS_REGION }}
-        
 
       - name: CDK Synth
         run: |

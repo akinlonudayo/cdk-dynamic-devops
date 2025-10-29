@@ -1,0 +1,21 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "5e9bfea3b07c627dcd3451867921d4481d2d0cf4791b6ff6d65961359828c81b": {
+      "displayName": "DevopsCdkDynamicStack Template",
+      "source": {
+        "path": "DevopsCdkDynamicStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "409263326615-ca-central-1-727aec5b": {
+          "bucketName": "cdk-hnb659fds-assets-409263326615-ca-central-1",
+          "objectKey": "5e9bfea3b07c627dcd3451867921d4481d2d0cf4791b6ff6d65961359828c81b.json",
+          "region": "ca-central-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::409263326615:role/cdk-hnb659fds-file-publishing-role-409263326615-ca-central-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
