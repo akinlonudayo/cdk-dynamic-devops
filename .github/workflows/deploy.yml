@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:      
-        working-directory: genai
+        working-directory: cdk-dynamic-devops
     env:
       ACTION: ${{ github.event.inputs.action || 'deploy' }}
       DEPLOY_ENV: ${{ github.event.inputs.deploy_env || 'dev' }}
