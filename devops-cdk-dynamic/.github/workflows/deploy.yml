@@ -47,14 +47,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Check npm command
-        run: |
-          which npm
-          npm --version
-          echo "Checking package.json existence"
-          ls -la
-
-
       - name: Install project dependencies
         run: npm ci    # ✅ local install, uses package-lock.json
 
